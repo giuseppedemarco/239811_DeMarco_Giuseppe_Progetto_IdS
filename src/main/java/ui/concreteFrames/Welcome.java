@@ -47,8 +47,11 @@ public class Welcome extends AbstractFrame{
     }
 
     private void componentActionListener(){
-        //TODO
-        welcomeButton.addActionListener(null);
+        welcomeButton.addActionListener(e -> {
+            Home h = new Home();
+            h.setVisible(true);
+            this.dispose();
+        });
     }
 
     @Override
