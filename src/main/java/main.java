@@ -3,15 +3,16 @@ package src.main.java;
 import java.sql.Connection;
 
 import src.main.java.db.ConnectionDB;
-import src.main.java.ui.concreteFrames.Welcome;
+import src.main.java.ui.concreteFrames.Home;
+
 
 class main{
     public static void main(String...args){
         ConnectionDB db = new ConnectionDB();
         Connection connessione = db.getConnection();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            ConnectionDB.getIstance().closeConnection();
+            new ConnectionDB().closeConnection();
         }));
-        Welcome welcomePage = new Welcome();
+        Home home = new Home();
     }
 }
