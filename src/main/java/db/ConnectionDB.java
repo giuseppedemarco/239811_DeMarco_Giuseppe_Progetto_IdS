@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ConnectionDB {
-    private static ConnectionDB istance;
     private Connection connection;
 
     private String url;
@@ -26,13 +25,6 @@ public class ConnectionDB {
         url = "jdbc:mysql://localhost:3306/libreria";
         user = "root";
         pwd = "root";
-    }
-
-    public static synchronized ConnectionDB getIstance(){
-        if(istance == null){
-            return new ConnectionDB();
-        }
-        return istance;
     }
 
     public Connection getConnection(){
