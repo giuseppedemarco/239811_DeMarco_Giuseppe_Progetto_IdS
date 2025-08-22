@@ -1,23 +1,19 @@
 package src.main.java.ui.concreteFrames;
 
-import java.awt.Component;
-import java.awt.Dimension;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
+import java.awt.*;
+import javax.swing.*;
 import src.main.java.ui.AbstractFrame;
+import src.main.java.ui.components.RoundedButton;
+import src.main.java.ui.components.SimpleButton;
 
 public class Home extends AbstractFrame{
 
-    private JButton createButton;
-    private JButton uploadButton;
+    private RoundedButton createButton;
+    private RoundedButton uploadButton;
     private JLabel frameTitle;
     private JLabel frameSubTitle;
     private JPanel layout;
+    private JPanel buttonPanel;
 
     public Home(){
         super();
@@ -26,11 +22,18 @@ public class Home extends AbstractFrame{
     }
 
     private void initializeHomeComponents(){
-        createButton = new JButton("Crea una libreria");
-        uploadButton = new JButton("Carica una libreria");
-        frameTitle = new JLabel("Home");
+        frameTitle = new JLabel("BENVENUTO"); 
         frameSubTitle = new JLabel("Crea la tua libreria o caricane una per cominciare!");
+        uploadButton = new RoundedButton(new SimpleButton("CARICA"), "#8686AC");
+        createButton = new RoundedButton(new SimpleButton("CREA"), "#505081");
         layout = new JPanel();
+        layout.setBackground(Color.decode("#272757"));
+        getContentPane().setBackground(Color.decode("#272757"));
+    
+        buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        buttonPanel.setOpaque(false);
+        buttonPanel.add(createButton.getButton());
+        buttonPanel.add(uploadButton.getButton());
     }
 
     @Override
@@ -43,22 +46,30 @@ public class Home extends AbstractFrame{
     @Override
     protected void componentManager() {
         layout.setLayout(new BoxLayout(layout, BoxLayout.Y_AXIS));
+
         frameTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
         frameTitle.setAlignmentY(Component.CENTER_ALIGNMENT);
+        frameTitle.setFont(new Font("Montserrat", Font.BOLD, 64));
+        frameTitle.setForeground(Color.WHITE);
+
         frameSubTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
         frameSubTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-        uploadButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        uploadButton.setAlignmentY(Component.CENTER_ALIGNMENT);
-        createButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        createButton.setAlignmentY(Component.CENTER_ALIGNMENT);
+        frameSubTitle.setFont(new Font("Montserrat", Font.BOLD, 20));
+        frameSubTitle.setForeground(Color.WHITE);
+
+        uploadButton.getButton().setAlignmentX(Component.CENTER_ALIGNMENT);
+        uploadButton.getButton().setAlignmentY(Component.CENTER_ALIGNMENT);
+        createButton.getButton().setAlignmentX(Component.CENTER_ALIGNMENT);
+        createButton.getButton().setAlignmentY(Component.CENTER_ALIGNMENT);
+        
         componentActionListener();
     }
 
     private void componentActionListener(){
         //TODO
-        createButton.addActionListener(null);
+        createButton.getButton().addActionListener(null);
         //TODO
-        uploadButton.addActionListener(null);
+        uploadButton.getButton().addActionListener(null);
     }
 
     @Override
@@ -66,11 +77,6 @@ public class Home extends AbstractFrame{
         layout.add(frameTitle);
         layout.add(Box.createRigidArea(new Dimension(10, 20)));
         layout.add(frameSubTitle);
-        layout.add(Box.createRigidArea(new Dimension(20, 20)));
-        layout.add(createButton);
-        layout.add(Box.createRigidArea(new Dimension(10, 10)));
-        layout.add(uploadButton);
+        layout.add(buttonPanel);
     }
-    
-    
 }
