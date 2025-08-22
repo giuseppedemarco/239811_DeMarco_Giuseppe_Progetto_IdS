@@ -4,9 +4,8 @@ import javax.swing.JFrame;
 import java.awt.*;
 
 public abstract class AbstractFrame extends JFrame {
-    private static final int WIDTH = 1080;
-    private static final int LENGTH = 1920;
-    private static final Color COLOR = new Color(101, 67, 33);
+    private static final int LENGTH = 1000;
+    private static final int WIDTH = 800;
     private static final String TITLE = "Gestore di Libreria Personale";
 
     public AbstractFrame(){
@@ -16,7 +15,6 @@ public abstract class AbstractFrame extends JFrame {
         setLayout(new GridBagLayout());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
-    
     
     protected abstract void init();
     protected abstract void componentManager();
