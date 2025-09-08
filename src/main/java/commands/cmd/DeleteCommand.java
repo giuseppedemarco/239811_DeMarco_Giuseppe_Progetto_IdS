@@ -14,8 +14,6 @@ public class DeleteCommand extends AbstractCommand{
         this.hook = hook;
     }
 
-    
-
     @Override
     public void exec() {
         try {
