@@ -1,6 +1,7 @@
 package src.main.java.commands.cmd;
 
 import src.main.java.commands.AbstractCommand;
+import src.main.java.utils.CSVGenerator;
 
 public class ExportCommand extends AbstractCommand{
 
