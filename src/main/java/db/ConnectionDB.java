@@ -5,40 +5,28 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ConnectionDB {
-    private Connection connection;
 
-    private String url;
-    private String user;
-    private String pwd;
+    private static final String DB_PATH = "miaLibreria.db";
+    private static final String URL = "jdbc:sqlite:" + DB_PATH;
 
-    public ConnectionDB(){
-        initializeDBCredentials();
-        try{
-            connection = DriverManager.getConnection(url, user, pwd);
-            connection.setAutoCommit(true);
-        }catch(SQLException e){
-            System.out.println("Si è verificato un errore durante la connessione.");
+    public Connection getConnection() {
+        try {
+            return DriverManager.getConnection(URL);
+        } catch (SQLException e) {
+            System.out.println("Errore durante la connessione al database:");
+            e.printStackTrace();
+            throw new RuntimeException("Impossibile connettersi al database SQLite.", e);
         }
     }
 
-    private void initializeDBCredentials(){
-        url = "jdbc:mysql://localhost:3306/libreria";
-        user = "root";
-        pwd = "root";
-    }
-
-    public Connection getConnection(){
-        return connection;
-    }
-
-    public void closeConnection(){
-        try{
-            if(connection != null){
+    public void closeConnection(Connection connection) {
+        try {
+            if (connection != null && !connection.isClosed()) {
                 connection.close();
             }
-        }catch(SQLException e){
-            System.out.println("Errore nella chiusura della connessione con il DB:");
+        } catch (SQLException e) {
+            System.out.println("Errore durante la chiusura della connessione:");
+            e.printStackTrace();
         }
     }
-    
 }

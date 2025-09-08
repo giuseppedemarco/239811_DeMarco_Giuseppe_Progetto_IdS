@@ -11,7 +11,7 @@ class main{
         ConnectionDB db = new ConnectionDB();
         Connection connessione = db.getConnection();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            new ConnectionDB().closeConnection();
+            new ConnectionDB().closeConnection(connessione);
         }));
         Home home = new Home();
     }
