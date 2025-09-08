@@ -19,5 +19,5 @@ public abstract class AbstractFrame extends JFrame {
     protected abstract void init();
     protected abstract void componentManager();
     protected abstract void layoutManager();
-
+    protected abstract void componentActionListener();
 }

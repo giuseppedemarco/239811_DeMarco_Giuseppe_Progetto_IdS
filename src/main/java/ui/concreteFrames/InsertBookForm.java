@@ -1,134 +1,123 @@
 package src.main.java.ui.concreteFrames;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
+import src.main.java.commands.cmd.ExportCommand;
+import src.main.java.ui.AbstractFrame;
+import src.main.java.ui.CommandButtons.CreateButton;
+import src.main.java.ui.CommandButtons.DeleteButton;
+import src.main.java.ui.CommandButtons.FindButton;
+import src.main.java.ui.CommandButtons.SortButton;
+import src.main.java.ui.CommandButtons.UpdateButton;
+import src.main.java.ui.components.RoundedButton;
+import src.main.java.ui.components.SimpleButton;
+import src.main.java.utils.builders.ExportCommandBuilder;
 
-public class InsertBookForm extends JFrame implements ActionListener{
+public class InsertBookForm extends AbstractFrame {
 
-    private Container c;
-    private JLabel frameTitle;
-    private JLabel bookName;
-    private JTextField tBookName;
-    private JLabel autorName;
-    private JTextField tAutorName;
-    private JLabel ISBN;
-    private JTextField tISBN;
-    private JLabel genre;
-    private JTextField tGenre;
-    private JLabel review;
-    private JTextField tReview;
-    private JLabel readingProgress;
-    private JTextField tReadingProgress;
-    private JButton submit;
-    private JButton reset;
+
+    private RoundedButton ins;
+    private RoundedButton del;
+    private RoundedButton upd;
+    private RoundedButton cer;
+    private RoundedButton ord;
+
+    private final JTextArea infoText = new JTextArea( "Controllare la console di Java per eventuali errori.\n" );
+    private JPanel buttonPanel;
+    private JPanel layout;
 
     public InsertBookForm(){
-        setTitle("Aggiungi libro alla collezione");
-        setBounds(300,90,900,600);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setResizable(false);
-
-        c = getContentPane();
-        c.setLayout(null);
+        super();
         initializeFormComponents();
-        setVisible(true);
+        init();
     }
 
     private void initializeFormComponents(){
-        frameTitle = new JLabel("Inserimento libro");
-        frameTitle.setSize(300, 30);
-        frameTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-        frameTitle.setAlignmentY(Component.CENTER_ALIGNMENT);
-        c.add(frameTitle);
-
-        bookName = new JLabel("Nome libro");
-        bookName.setSize(100, 20);
-        bookName.setLocation(100,100);
-        c.add(bookName);
-
-        tBookName = new JTextField();
-        tBookName.setSize(190,20);
-        tBookName.setLocation(200,100);
-        c.add(bookName);
-
-        autorName = new JLabel("Nome libro");
-        autorName.setSize(100, 20);
-        autorName.setLocation(100,150);
-        c.add(autorName);
-
-        tAutorName = new JTextField();
-        tAutorName.setSize(150,20);
-        tAutorName.setLocation(200,150);
-        c.add(tAutorName);
-
-        ISBN = new JLabel("ISBN");
-        ISBN.setSize(100, 20);
-        ISBN.setLocation(100,200);
-        c.add(ISBN);
-
-        tISBN = new JTextField();
-        tISBN.setSize(190,20);
-        tISBN.setLocation(200,200);
-        c.add(tISBN);
-
-        genre = new JLabel("Genere");
-        genre.setSize(100, 20);
-        genre.setLocation(100,250);
-        c.add(genre);
-
-        tGenre = new JTextField();
-        tGenre.setSize(190,20);
-        tGenre.setLocation(250,250);
-        c.add(tGenre);
-
-        review = new JLabel("Recensione");
-        review.setSize(100, 20);
-        review.setLocation(100,300);
-        c.add(review);
-
-        tReview = new JTextField();
-        tReview.setSize(190,20);
-        tReview.setLocation(300,300);
-        c.add(tReview);
-
-        readingProgress = new JLabel("Stato di lettura");
-        readingProgress.setSize(100, 20);
-        readingProgress.setLocation(100,350);
-        c.add(readingProgress);
-
-        tReadingProgress = new JTextField();
-        tReadingProgress.setSize(190,20);
-        tReadingProgress.setLocation(350,350);
-        c.add(tReadingProgress);
-
-        submit = new JButton("Aggiungi");
-        submit.setSize(100, 20);
-        submit.setLocation(150, 450);
-        submit.addActionListener(this);
-        c.add(submit);
-
-        reset = new JButton("Reset");
-        reset.setSize(100, 20);
-        reset.setLocation(270, 450);
-        reset.addActionListener(this);
-        c.add(reset);
-
+        ins = new RoundedButton(new SimpleButton("Aggiungi un libro"), "#8686AC");
+        del = new RoundedButton(new SimpleButton("Elimina un libro"), "#8686AC");
+        upd = new RoundedButton(new SimpleButton("Modifica un libro"), "#8686AC");
+        cer = new RoundedButton(new SimpleButton("Cerca"), "#8686AC");
+        ord = new RoundedButton(new SimpleButton("Ordina"), "#8686AC");
+        layout = new JPanel();
+        layout.setBackground(Color.decode("#272757"));
+        getContentPane().setBackground(Color.decode("#272757"));
+    
+        buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        buttonPanel.setOpaque(false);
+        buttonPanel.add(ins.getButton());
+        buttonPanel.add(del.getButton());
+        buttonPanel.add(upd.getButton());
+        buttonPanel.add(cer.getButton());
+        buttonPanel.add(ord.getButton());
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == submit){
-            //TODO
-        }else if(e.getSource() == reset){
-            //TODO
-        }
+    protected void init() {
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                ExportCommand exp = new ExportCommandBuilder().create();
+                exp.exec();
+                dispose();
+            }
+        });
+        componentManager();
+        layoutManager();
+        add(layout);
     }
-    
+
+    @Override
+    protected void componentManager() {
+        infoText.setEditable(false);
+        infoText.setFocusable(false);
+        infoText.setBorder(null);
+        infoText.setOpaque(false);
+        infoText.setBackground(new Color(0,0,0,0));
+        infoText.setFont(new Font("Montserrat", Font.BOLD, 32));
+        infoText.setForeground(Color.WHITE);
+        infoText.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        infoText.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+
+        componentActionListener();
+    }
+
+    protected void componentActionListener(){
+        ins.getButton().addActionListener(e -> {
+            CreateButton createButton = new CreateButton();
+        });
+        upd.getButton().addActionListener(e -> {
+            UpdateButton updateButton = new UpdateButton();
+        });
+        del.getButton().addActionListener(e -> {
+            DeleteButton deleteButton = new DeleteButton();
+        });
+        cer.getButton().addActionListener(e -> {
+            FindButton findButton = new FindButton();
+        });
+        ord.getButton().addActionListener(e -> {
+            SortButton sortButton = new SortButton();
+        });
+    }
+
+    @Override
+    protected void layoutManager() {
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBackground(Color.decode("#272757"));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        mainPanel.add(infoText);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+
+        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(buttonPanel);
+
+        getContentPane().add(mainPanel);
+    }
+
+
 }
