@@ -8,8 +8,8 @@ import src.main.java.db.ConnectionDB;
 public abstract class AbstractCommand implements Command{
     private String query;
 
-    public AbstractCommand(String q){
-        this.query = q;
+    public AbstractCommand(String query){
+        this.query = query;
     }
 
     public PreparedStatement createStatement() throws SQLException {
