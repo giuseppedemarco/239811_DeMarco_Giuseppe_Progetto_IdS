@@ -2,14 +2,17 @@ package src.main.java.ui.concreteFrames;
 
 import java.awt.*;
 import javax.swing.*;
+
+import src.main.java.commands.cmd.ExportCommand;
 import src.main.java.ui.AbstractFrame;
 import src.main.java.ui.components.RoundedButton;
 import src.main.java.ui.components.SimpleButton;
+import src.main.java.utils.builders.ExportCommandBuilder;
 
 public class Home extends AbstractFrame{
 
+    private RoundedButton exportButton;
     private RoundedButton createButton;
-    private RoundedButton uploadButton;
     private JLabel frameTitle;
     private JLabel frameSubTitle;
     private JPanel layout;
@@ -23,17 +26,17 @@ public class Home extends AbstractFrame{
 
     private void initializeHomeComponents(){
         frameTitle = new JLabel("BENVENUTO"); 
-        frameSubTitle = new JLabel("Crea la tua libreria o caricane una per cominciare!");
-        uploadButton = new RoundedButton(new SimpleButton("CARICA"), "#8686AC");
-        createButton = new RoundedButton(new SimpleButton("CREA"), "#505081");
+        frameSubTitle = new JLabel("Crea la tua libreria o esportane il contenuto!");
+        createButton = new RoundedButton(new SimpleButton("CREA"), "#8686AC");
+        exportButton = new RoundedButton(new SimpleButton("ESPORTA"), "#505081");
         layout = new JPanel();
         layout.setBackground(Color.decode("#272757"));
         getContentPane().setBackground(Color.decode("#272757"));
     
         buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonPanel.setOpaque(false);
+        buttonPanel.add(exportButton.getButton());
         buttonPanel.add(createButton.getButton());
-        buttonPanel.add(uploadButton.getButton());
     }
 
     @Override
@@ -57,19 +60,25 @@ public class Home extends AbstractFrame{
         frameSubTitle.setFont(new Font("Montserrat", Font.BOLD, 20));
         frameSubTitle.setForeground(Color.WHITE);
 
-        uploadButton.getButton().setAlignmentX(Component.CENTER_ALIGNMENT);
-        uploadButton.getButton().setAlignmentY(Component.CENTER_ALIGNMENT);
         createButton.getButton().setAlignmentX(Component.CENTER_ALIGNMENT);
         createButton.getButton().setAlignmentY(Component.CENTER_ALIGNMENT);
+        exportButton.getButton().setAlignmentX(Component.CENTER_ALIGNMENT);
+        exportButton.getButton().setAlignmentY(Component.CENTER_ALIGNMENT);
         
         componentActionListener();
     }
 
-    private void componentActionListener(){
-        //TODO
-        createButton.getButton().addActionListener(null);
-        //TODO
-        uploadButton.getButton().addActionListener(null);
+    protected void componentActionListener(){
+        exportButton.getButton().addActionListener(e -> {
+            ExportCommandBuilder ecb = new ExportCommandBuilder();
+            ExportCommand c = ecb.create();
+            c.exec();
+        });
+
+        createButton.getButton().addActionListener(e -> {
+            InsertBookForm ibf = new InsertBookForm();
+            dispose();
+        });
     }
 
     @Override
