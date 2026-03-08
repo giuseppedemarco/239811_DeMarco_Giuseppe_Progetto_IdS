@@ -1,0 +1,20 @@
+@startuml
+left to right direction
+
+
+actor "Gestore" as Gestore
+rectangle "Sistema Gestione Collezione Film"{
+    usecase "Caricare una libreria in .CSV da disco rigido" as UpLib
+
+    usecase "Scegliere la modalità di upload" as Mod
+    usecase "Nagivare e cercare il file" as File
+    usecase "Caricare il file .CSV" as CSV
+}
+
+Gestore --> UpLib 
+
+UpLib ..> Mod : <<include>>
+UpLib ..> File : <<include>>
+UpLib ..> CSV : <<include>>
+
+@enduml

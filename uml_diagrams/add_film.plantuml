@@ -1,0 +1,26 @@
+@startuml
+left to right direction
+
+actor "Gestore" as Gestore
+
+rectangle "Sistema Gestione Collezione Film" {
+  usecase "Aggiungere film\nalla collezione" as UC_Add
+
+  usecase "Inserire titolo" as UC_Titolo
+  usecase "Inserire regista" as UC_Regista
+  usecase "Inserire anno di uscita" as UC_Anno
+  usecase "Selezionare genere\ncinematografico" as UC_Genere
+  usecase "Inserire valutazione\npersonale (1-5 stelle)" as UC_Valutazione
+  usecase "Impostare stato di visione\n(visto / da vedere / in visione)" as UC_Stato
+}
+
+Gestore --> UC_Add
+
+UC_Add ..> UC_Titolo : <<include>>
+UC_Add ..> UC_Regista : <<include>>
+UC_Add ..> UC_Anno : <<include>>
+UC_Add ..> UC_Genere : <<include>>
+UC_Add ..> UC_Valutazione : <<include>>
+UC_Add ..> UC_Stato : <<include>>
+
+@enduml
