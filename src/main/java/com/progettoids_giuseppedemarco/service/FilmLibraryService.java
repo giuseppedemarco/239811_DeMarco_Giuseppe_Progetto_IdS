@@ -3,13 +3,11 @@ package com.progettoids_giuseppedemarco.service;
 import com.progettoids_giuseppedemarco.builder.FilmBuilder;
 import com.progettoids_giuseppedemarco.domain.Film;
 import com.progettoids_giuseppedemarco.repository.FilmRepository;
-import com.progettoids_giuseppedemarco.specification.FilmSpecification;
 import com.progettoids_giuseppedemarco.strategy.FilmSortContext;
 import com.progettoids_giuseppedemarco.strategy.FilmSortStrategy;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 public class FilmLibraryService {
     private final FilmRepository filmRepository;
@@ -38,11 +36,9 @@ public class FilmLibraryService {
         return filmRepository.findAll();
     }
 
-    public List<Film> cercaPerSpecifica(FilmSpecification specification) {
-        return filmRepository.findAll()
-                .stream()
-                .filter(specification::isSatisfiedBy)
-                .collect(Collectors.toList());
+    public Film trovaFilmPerId(int id) {
+        return filmRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("film non trovato: " + id));
     }
 
     public List<Film> ordina(FilmSortStrategy strategy) {
