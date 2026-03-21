@@ -1,9 +1,9 @@
 package com.progettoids_giuseppedemarco.ui;
 
 import com.progettoids_giuseppedemarco.domain.Film;
-import com.progettoids_giuseppedemarco.infrastructure.DatabaseConnectionManager;
 import com.progettoids_giuseppedemarco.infrastructure.NoteFilmStorage;
 import com.progettoids_giuseppedemarco.repository.FilmRepository;
+import com.progettoids_giuseppedemarco.repository.db.DatabaseFilmRepository;
 import com.progettoids_giuseppedemarco.repository.inmemory.InMemoryFilmRepository;
 import com.progettoids_giuseppedemarco.service.FilmLibraryService;
 import javafx.application.Application;
@@ -20,8 +20,6 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 public class FilmLibraryApp extends Application {
@@ -47,7 +45,7 @@ public class FilmLibraryApp extends Application {
         localButton.setMaxWidth(Double.MAX_VALUE);
 
         Button dbButton = new Button("Carica da DB");
-        dbButton.setOnAction(event -> loadFromDatabase());
+        dbButton.setOnAction(event -> loadFromDatabase(stage));
         dbButton.setMaxWidth(Double.MAX_VALUE);
 
         VBox root = new VBox(12, titleLabel, subtitleLabel, localButton, dbButton);
@@ -87,11 +85,16 @@ public class FilmLibraryApp extends Application {
         }
     }
 
-    private void loadFromDatabase() {
-        try (Connection connection = DatabaseConnectionManager.getInstance().openConnection()) {
-            showAlert(Alert.AlertType.INFORMATION, "Connessione al database riuscita", "Database raggiunto correttamente usando i parametri di db.properties.");
-        } catch (IllegalStateException | SQLException e) {
-            showAlert(Alert.AlertType.ERROR, "Connessione al database non riuscita", e.getMessage());
+    private void loadFromDatabase(Stage stage) {
+        try {
+            FilmRepository filmRepository = new DatabaseFilmRepository();
+            filmRepository.findAll();
+            libraryService = new FilmLibraryService(filmRepository);
+            currentNotePath = null;
+            FilmLibraryDashboard.open(libraryService, noteFilmStorage, null);
+            stage.close();
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            showAlert(Alert.AlertType.ERROR, "Caricamento da database non riuscito", buildDetailedMessage(e));
         }
     }
 
@@ -119,5 +122,27 @@ public class FilmLibraryApp extends Application {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private String buildDetailedMessage(Throwable throwable) {
+        StringBuilder builder = new StringBuilder();
+        if (throwable.getMessage() != null && !throwable.getMessage().isBlank()) {
+            builder.append(throwable.getMessage());
+        }
+
+        Throwable cause = throwable.getCause();
+        while (cause != null) {
+            String causeMessage = cause.getMessage();
+            if (causeMessage != null && !causeMessage.isBlank()) {
+                if (!builder.isEmpty()) {
+                    builder.append("\nDettaglio: ");
+                }
+                builder.append(causeMessage);
+                break;
+            }
+            cause = cause.getCause();
+        }
+
+        return builder.isEmpty() ? "Errore sconosciuto durante il caricamento da database." : builder.toString();
     }
 }
