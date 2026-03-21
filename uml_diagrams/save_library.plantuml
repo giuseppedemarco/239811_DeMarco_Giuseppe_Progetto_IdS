@@ -1,0 +1,17 @@
+@startuml
+left to right direction
+
+actor "Gestore" as Gestore
+
+rectangle "Sistema Gestione Collezione Film" {
+  usecase "Caricamento della libreria nella home" as UC_up
+  usecase "Modifica Film della libreria" as UC_mod
+  usecase "Salvataggio della libreria" as UC_Add
+}
+
+Gestore --> UC_up
+UC_up <.. UC_mod  : <<extend>>
+UC_up <..  UC_Add  : <<extend>>
+UC_mod <.. UC_Add : <<extend>>
+
+@enduml

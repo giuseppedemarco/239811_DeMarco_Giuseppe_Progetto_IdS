@@ -1,0 +1,14 @@
+@startuml
+left to right direction
+
+actor "Gestore" as Gestore
+
+rectangle "Sistem Gestione Collezione Film" {
+    usecase "Rimuovere film \ndalla collezione" as UC_remove
+
+    usecase "Inserire l'id del film" as UC_id
+}
+
+Gestore --> UC_remove
+UC_remove ..> UC_id : <<include>>
+@enduml

@@ -4,17 +4,21 @@ left to right direction
 
 actor "Gestore" as Gestore
 rectangle "Sistema Gestione Collezione Film"{
-    usecase "Caricare una libreria in .CSV da disco rigido" as UpLib
+    usecase "Scegliere la modalità di upload" as Mod
+
+    usecase "Caricare una libreria in .txt da disco rigido" as UpLib
+    usecase "Caricare una libreria da DB" as UpDB
 
     usecase "Scegliere la modalità di upload" as Mod
     usecase "Nagivare e cercare il file" as File
-    usecase "Caricare il file .CSV" as CSV
+    usecase "Connettersi al DB" as Connection
 }
 
-Gestore --> UpLib 
+Gestore --> Mod 
 
-UpLib ..> Mod : <<include>>
+Mod --> UpLib
+Mod --> UpDB
 UpLib ..> File : <<include>>
-UpLib ..> CSV : <<include>>
+UpDB ..> Connection : <<include>>
 
 @enduml
