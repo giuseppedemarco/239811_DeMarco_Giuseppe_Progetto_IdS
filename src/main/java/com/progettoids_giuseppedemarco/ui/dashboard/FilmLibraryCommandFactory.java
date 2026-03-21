@@ -15,8 +15,8 @@ public final class FilmLibraryCommandFactory {
                 new SimpleLibraryCommand("Aggiorna film", controller::updateFilm),
                 new SimpleLibraryCommand("Rimuovi film", controller::removeFilm),
                 new SimpleLibraryCommand("Ordina per titolo", controller::sortByTitle),
-                new SimpleLibraryCommand("Ordina per anno", controller::sortByYear),
-                new SimpleLibraryCommand("Ordina per valutazione", controller::sortByRating),
+                new SimpleLibraryCommand("Ordina per regista", controller::sortByDirector),
+                new SimpleLibraryCommand("Ordina per stato visione", controller::sortByStatus),
                 new SimpleLibraryCommand("Ripristina elenco", controller::showRepositoryOrder),
                 new SimpleLibraryCommand("Salva file", controller::saveLibrary)
         );

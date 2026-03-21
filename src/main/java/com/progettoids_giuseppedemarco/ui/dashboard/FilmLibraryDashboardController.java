@@ -6,9 +6,9 @@ import com.progettoids_giuseppedemarco.domain.Genere;
 import com.progettoids_giuseppedemarco.domain.Regista;
 import com.progettoids_giuseppedemarco.infrastructure.NoteFilmStorage;
 import com.progettoids_giuseppedemarco.service.FilmLibraryService;
-import com.progettoids_giuseppedemarco.strategy.SortByAnnoStrategy;
+import com.progettoids_giuseppedemarco.strategy.SortByRegistaStrategy;
+import com.progettoids_giuseppedemarco.strategy.SortByStatoVisioneStrategy;
 import com.progettoids_giuseppedemarco.strategy.SortByTitoloStrategy;
-import com.progettoids_giuseppedemarco.strategy.SortByValutazioneStrategy;
 
 import javax.swing.JOptionPane;
 import java.awt.Component;
@@ -109,12 +109,12 @@ public class FilmLibraryDashboardController {
         showSorted("Elenco ordinato per titolo.", libraryService.ordina(new SortByTitoloStrategy()));
     }
 
-    public void sortByYear() {
-        showSorted("Elenco ordinato per anno.", libraryService.ordina(new SortByAnnoStrategy()));
+    public void sortByDirector() {
+        showSorted("Elenco ordinato per regista.", libraryService.ordina(new SortByRegistaStrategy()));
     }
 
-    public void sortByRating() {
-        showSorted("Elenco ordinato per valutazione.", libraryService.ordina(new SortByValutazioneStrategy()));
+    public void sortByStatus() {
+        showSorted("Elenco ordinato per stato visione.", libraryService.ordina(new SortByStatoVisioneStrategy()));
     }
 
     public void showRepositoryOrder() {
