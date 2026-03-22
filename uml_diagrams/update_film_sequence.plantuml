@@ -1,0 +1,28 @@
+@startuml
+title Sequence Diagram - Aggiorna film
+
+actor Utente
+participant FilmLibraryDashboard
+participant FilmLibraryDashboardController
+participant FilmLibraryService
+participant FilmFormDialog
+participant ConcreteFilmBuilder
+participant FilmRepository
+
+Utente -> FilmLibraryDashboard : click "Aggiorna film"
+FilmLibraryDashboard -> FilmLibraryDashboardController : updateFilm()
+FilmLibraryDashboardController -> FilmLibraryService : trovaFilmPerId(id)
+FilmLibraryService -> FilmRepository : findById(id)
+FilmRepository --> FilmLibraryService : film
+FilmLibraryService --> FilmLibraryDashboardController : film esistente
+FilmLibraryDashboardController -> FilmFormDialog : show(..., film)
+FilmFormDialog --> FilmLibraryDashboardController : dati aggiornati
+FilmLibraryDashboardController -> ConcreteFilmBuilder : costruisci film aggiornato
+ConcreteFilmBuilder --> FilmLibraryDashboardController : builder
+FilmLibraryDashboardController -> FilmLibraryService : aggiornaFilm(id, builder)
+FilmLibraryService -> FilmRepository : save(filmAggiornato)
+FilmRepository --> FilmLibraryService : film aggiornato
+FilmLibraryService --> FilmLibraryDashboardController : conferma
+FilmLibraryDashboardController -> FilmLibraryDashboard : aggiorna elenco
+
+@enduml
