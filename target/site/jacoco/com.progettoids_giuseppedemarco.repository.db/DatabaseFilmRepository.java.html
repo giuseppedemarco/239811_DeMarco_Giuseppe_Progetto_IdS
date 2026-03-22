@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DatabaseFilmRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">progettoids_giuseppedemarco</a> &gt; <a href="index.source.html" class="el_package">com.progettoids_giuseppedemarco.repository.db</a> &gt; <span class="el_source">DatabaseFilmRepository.java</span></div><h1>DatabaseFilmRepository.java</h1><pre class="source lang-java linenums">package com.progettoids_giuseppedemarco.repository.db;
+
+import com.progettoids_giuseppedemarco.domain.Film;
+import com.progettoids_giuseppedemarco.domain.Genere;
+import com.progettoids_giuseppedemarco.domain.Regista;
+import com.progettoids_giuseppedemarco.domain.StatoVisione;
+import com.progettoids_giuseppedemarco.infrastructure.DatabaseConnectionManager;
+import com.progettoids_giuseppedemarco.repository.FilmRepository;
+
+import java.sql.Connection;
+import java.sql.Timestamp;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+
+<span class="fc" id="L21">public class DatabaseFilmRepository implements FilmRepository {</span>
+    @Override
+    public Film save(Film entity) {
+<span class="nc" id="L24">        try (Connection connection = DatabaseConnectionManager.getInstance().openConnection()) {</span>
+<span class="nc" id="L25">            connection.setAutoCommit(false);</span>
+<span class="nc bnc" id="L26" title="All 4 branches missed.">            if (entity.getId() == null || entity.getId() &lt;= 0) {</span>
+<span class="nc" id="L27">                Film savedFilm = insertFilm(connection, entity);</span>
+<span class="nc" id="L28">                connection.commit();</span>
+<span class="nc" id="L29">                return savedFilm;</span>
+            }
+<span class="nc" id="L31">            Film updatedFilm = updateFilm(connection, entity);</span>
+<span class="nc" id="L32">            connection.commit();</span>
+<span class="nc" id="L33">            return updatedFilm;</span>
+<span class="nc" id="L34">        } catch (SQLException e) {</span>
+<span class="nc" id="L35">            throw new IllegalStateException(&quot;salvataggio su database non riuscito&quot;, e);</span>
+        }
+    }
+
+    @Override
+    public Optional&lt;Film&gt; findById(Integer id) {
+<span class="nc" id="L41">        try (Connection connection = DatabaseConnectionManager.getInstance().openConnection()) {</span>
+<span class="nc" id="L42">            String query = baseSelectQuery() + &quot; AND f.id = ? ORDER BY f.id&quot;;</span>
+
+<span class="nc" id="L44">            try (PreparedStatement statement = connection.prepareStatement(query)) {</span>
+<span class="nc" id="L45">                statement.setInt(1, id);</span>
+<span class="nc" id="L46">                try (ResultSet resultSet = statement.executeQuery()) {</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">                    if (!resultSet.next()) {</span>
+<span class="nc" id="L48">                        return Optional.empty();</span>
+                    }
+<span class="nc" id="L50">                    return Optional.of(mapFilm(resultSet));</span>
+                }
+            }
+<span class="nc" id="L53">        } catch (SQLException e) {</span>
+<span class="nc" id="L54">            throw new IllegalStateException(&quot;lettura film da database non riuscita&quot;, e);</span>
+        }
+    }
+
+    @Override
+    public List&lt;Film&gt; findAll() {
+<span class="nc" id="L60">        try (Connection connection = DatabaseConnectionManager.getInstance().openConnection()) {</span>
+<span class="nc" id="L61">            String query = baseSelectQuery() + &quot; ORDER BY f.id&quot;;</span>
+
+<span class="nc" id="L63">            try (PreparedStatement statement = connection.prepareStatement(query);</span>
+<span class="nc" id="L64">                 ResultSet resultSet = statement.executeQuery()) {</span>
+<span class="nc" id="L65">                List&lt;Film&gt; films = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">                while (resultSet.next()) {</span>
+<span class="nc" id="L67">                    films.add(mapFilm(resultSet));</span>
+                }
+<span class="nc" id="L69">                return films;</span>
+            }
+<span class="nc" id="L71">        } catch (SQLException e) {</span>
+<span class="nc" id="L72">            throw new IllegalStateException(&quot;lettura libreria da database non riuscita&quot;, e);</span>
+        }
+    }
+
+    @Override
+    public void deleteById(Integer id) {
+<span class="nc" id="L78">        try (Connection connection = DatabaseConnectionManager.getInstance().openConnection()) {</span>
+<span class="nc" id="L79">            connection.setAutoCommit(false);</span>
+
+<span class="nc" id="L81">            deleteByFilmId(connection, &quot;stati&quot;, id);</span>
+<span class="nc" id="L82">            deleteByFilmId(connection, &quot;valutazioni_personali&quot;, id);</span>
+<span class="nc" id="L83">            try (PreparedStatement statement = connection.prepareStatement(&quot;DELETE FROM film WHERE id = ?&quot;)) {</span>
+<span class="nc" id="L84">                statement.setInt(1, id);</span>
+<span class="nc" id="L85">                statement.executeUpdate();</span>
+            }
+
+<span class="nc" id="L88">            connection.commit();</span>
+<span class="nc" id="L89">        } catch (SQLException e) {</span>
+<span class="nc" id="L90">            throw new IllegalStateException(&quot;rimozione film dal database non riuscita&quot;, e);</span>
+        }
+<span class="nc" id="L92">    }</span>
+
+    private Film insertFilm(Connection connection, Film entity) throws SQLException {
+<span class="nc" id="L95">        int registaId = findOrCreateRegista(connection, entity.getRegista());</span>
+<span class="nc" id="L96">        int genereId = findOrCreateGenere(connection, entity.getGenere().getNome());</span>
+<span class="nc" id="L97">        int filmId = nextId(connection, &quot;film&quot;);</span>
+<span class="nc" id="L98">        Timestamp now = Timestamp.valueOf(LocalDateTime.now());</span>
+
+<span class="nc" id="L100">        String query = &quot;&quot;&quot;</span>
+                INSERT INTO film (id, titolo, id_regista, anno_di_uscita, id_genere, created_at, updated_at, deleted_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                &quot;&quot;&quot;;
+
+<span class="nc" id="L105">        try (PreparedStatement statement = connection.prepareStatement(query)) {</span>
+<span class="nc" id="L106">            statement.setInt(1, filmId);</span>
+<span class="nc" id="L107">            statement.setString(2, entity.getTitolo());</span>
+<span class="nc" id="L108">            statement.setInt(3, registaId);</span>
+<span class="nc" id="L109">            statement.setString(4, String.valueOf(entity.getAnnoDiUscita()));</span>
+<span class="nc" id="L110">            statement.setInt(5, genereId);</span>
+<span class="nc" id="L111">            statement.setTimestamp(6, now);</span>
+<span class="nc" id="L112">            statement.setTimestamp(7, now);</span>
+<span class="nc" id="L113">            statement.setTimestamp(8, null);</span>
+<span class="nc" id="L114">            statement.executeUpdate();</span>
+        }
+
+<span class="nc" id="L117">        upsertStato(connection, filmId, entity.getStatoVisione(), now);</span>
+<span class="nc" id="L118">        upsertValutazione(connection, filmId, entity.getValutazionePersonale(), now);</span>
+<span class="nc" id="L119">        return entity.withId(filmId);</span>
+    }
+
+    private Film updateFilm(Connection connection, Film entity) throws SQLException {
+<span class="nc" id="L123">        int registaId = findOrCreateRegista(connection, entity.getRegista());</span>
+<span class="nc" id="L124">        int genereId = findOrCreateGenere(connection, entity.getGenere().getNome());</span>
+<span class="nc" id="L125">        Timestamp now = Timestamp.valueOf(LocalDateTime.now());</span>
+<span class="nc" id="L126">        String query = &quot;&quot;&quot;</span>
+                UPDATE film
+                SET titolo = ?, id_regista = ?, anno_di_uscita = ?, id_genere = ?, updated_at = ?
+                WHERE id = ? AND deleted_at IS NULL
+                &quot;&quot;&quot;;
+
+<span class="nc" id="L132">        try (PreparedStatement statement = connection.prepareStatement(query)) {</span>
+<span class="nc" id="L133">            statement.setString(1, entity.getTitolo());</span>
+<span class="nc" id="L134">            statement.setInt(2, registaId);</span>
+<span class="nc" id="L135">            statement.setString(3, String.valueOf(entity.getAnnoDiUscita()));</span>
+<span class="nc" id="L136">            statement.setInt(4, genereId);</span>
+<span class="nc" id="L137">            statement.setTimestamp(5, now);</span>
+<span class="nc" id="L138">            statement.setInt(6, entity.getId());</span>
+<span class="nc" id="L139">            int updatedRows = statement.executeUpdate();</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">            if (updatedRows == 0) {</span>
+<span class="nc" id="L141">                throw new IllegalStateException(&quot;film non trovato nel database: &quot; + entity.getId());</span>
+            }
+        }
+
+<span class="nc" id="L145">        upsertStato(connection, entity.getId(), entity.getStatoVisione(), now);</span>
+<span class="nc" id="L146">        upsertValutazione(connection, entity.getId(), entity.getValutazionePersonale(), now);</span>
+<span class="nc" id="L147">        return entity;</span>
+    }
+
+    private void upsertStato(Connection connection, int filmId, StatoVisione statoVisione, Timestamp now) throws SQLException {
+<span class="nc" id="L151">        Integer statoId = findChildId(connection, &quot;stati&quot;, filmId);</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (statoId == null) {</span>
+<span class="nc" id="L153">            String insert = &quot;&quot;&quot;</span>
+                    INSERT INTO stati (id, id_film, stato_visione, created_at, updated_at, deleted_at)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    &quot;&quot;&quot;;
+<span class="nc" id="L157">            try (PreparedStatement statement = connection.prepareStatement(insert)) {</span>
+<span class="nc" id="L158">                statement.setInt(1, nextId(connection, &quot;stati&quot;));</span>
+<span class="nc" id="L159">                statement.setInt(2, filmId);</span>
+<span class="nc" id="L160">                statement.setString(3, statoVisione.name());</span>
+<span class="nc" id="L161">                statement.setTimestamp(4, now);</span>
+<span class="nc" id="L162">                statement.setTimestamp(5, now);</span>
+<span class="nc" id="L163">                statement.setTimestamp(6, null);</span>
+<span class="nc" id="L164">                statement.executeUpdate();</span>
+            }
+<span class="nc" id="L166">            return;</span>
+        }
+
+<span class="nc" id="L169">        String update = &quot;UPDATE stati SET stato_visione = ?, updated_at = ? WHERE id = ?&quot;;</span>
+<span class="nc" id="L170">        try (PreparedStatement statement = connection.prepareStatement(update)) {</span>
+<span class="nc" id="L171">            statement.setString(1, statoVisione.name());</span>
+<span class="nc" id="L172">            statement.setTimestamp(2, now);</span>
+<span class="nc" id="L173">            statement.setInt(3, statoId);</span>
+<span class="nc" id="L174">            statement.executeUpdate();</span>
+        }
+<span class="nc" id="L176">    }</span>
+
+    private void upsertValutazione(Connection connection, int filmId, int valutazione, Timestamp now) throws SQLException {
+<span class="nc" id="L179">        Integer valutazioneId = findChildId(connection, &quot;valutazioni_personali&quot;, filmId);</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">        if (valutazioneId == null) {</span>
+<span class="nc" id="L181">            String insert = &quot;&quot;&quot;</span>
+                    INSERT INTO valutazioni_personali (id, id_film, valutazione_personale, created_at, updated_at, deleted_at)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    &quot;&quot;&quot;;
+<span class="nc" id="L185">            try (PreparedStatement statement = connection.prepareStatement(insert)) {</span>
+<span class="nc" id="L186">                statement.setInt(1, nextId(connection, &quot;valutazioni_personali&quot;));</span>
+<span class="nc" id="L187">                statement.setInt(2, filmId);</span>
+<span class="nc" id="L188">                statement.setString(3, String.valueOf(valutazione));</span>
+<span class="nc" id="L189">                statement.setString(4, now.toString());</span>
+<span class="nc" id="L190">                statement.setTimestamp(5, now);</span>
+<span class="nc" id="L191">                statement.setString(6, null);</span>
+<span class="nc" id="L192">                statement.executeUpdate();</span>
+            }
+<span class="nc" id="L194">            return;</span>
+        }
+
+<span class="nc" id="L197">        String update = &quot;UPDATE valutazioni_personali SET valutazione_personale = ?, updated_at = ? WHERE id = ?&quot;;</span>
+<span class="nc" id="L198">        try (PreparedStatement statement = connection.prepareStatement(update)) {</span>
+<span class="nc" id="L199">            statement.setString(1, String.valueOf(valutazione));</span>
+<span class="nc" id="L200">            statement.setTimestamp(2, now);</span>
+<span class="nc" id="L201">            statement.setInt(3, valutazioneId);</span>
+<span class="nc" id="L202">            statement.executeUpdate();</span>
+        }
+<span class="nc" id="L204">    }</span>
+
+    private Integer findOrCreateRegista(Connection connection, Regista regista) throws SQLException {
+<span class="nc" id="L207">        String select = &quot;&quot;&quot;</span>
+                SELECT id
+                FROM registi
+                WHERE nome = ? AND ((cognome IS NULL AND ? IS NULL) OR cognome = ?)
+                  AND deleted_at IS NULL
+                LIMIT 1
+                &quot;&quot;&quot;;
+<span class="nc" id="L214">        try (PreparedStatement statement = connection.prepareStatement(select)) {</span>
+<span class="nc" id="L215">            statement.setString(1, regista.getNome());</span>
+<span class="nc" id="L216">            statement.setString(2, regista.getCognome());</span>
+<span class="nc" id="L217">            statement.setString(3, regista.getCognome());</span>
+<span class="nc" id="L218">            try (ResultSet resultSet = statement.executeQuery()) {</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">                if (resultSet.next()) {</span>
+<span class="nc" id="L220">                    return resultSet.getInt(&quot;id&quot;);</span>
+                }
+            }
+        }
+
+<span class="nc" id="L225">        int registaId = nextId(connection, &quot;registi&quot;);</span>
+<span class="nc" id="L226">        Timestamp now = Timestamp.valueOf(LocalDateTime.now());</span>
+<span class="nc" id="L227">        String insert = &quot;&quot;&quot;</span>
+                INSERT INTO registi (id, nome, cognome, created_at, updated_at, deleted_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                &quot;&quot;&quot;;
+<span class="nc" id="L231">        try (PreparedStatement statement = connection.prepareStatement(insert)) {</span>
+<span class="nc" id="L232">            statement.setInt(1, registaId);</span>
+<span class="nc" id="L233">            statement.setString(2, regista.getNome());</span>
+<span class="nc" id="L234">            statement.setString(3, regista.getCognome());</span>
+<span class="nc" id="L235">            statement.setTimestamp(4, now);</span>
+<span class="nc" id="L236">            statement.setTimestamp(5, now);</span>
+<span class="nc" id="L237">            statement.setTimestamp(6, null);</span>
+<span class="nc" id="L238">            statement.executeUpdate();</span>
+        }
+<span class="nc" id="L240">        return registaId;</span>
+    }
+
+    private Integer findOrCreateGenere(Connection connection, String genere) throws SQLException {
+<span class="nc" id="L244">        String select = &quot;SELECT id FROM generi WHERE genere = ? AND deleted_at IS NULL LIMIT 1&quot;;</span>
+<span class="nc" id="L245">        try (PreparedStatement statement = connection.prepareStatement(select)) {</span>
+<span class="nc" id="L246">            statement.setString(1, genere);</span>
+<span class="nc" id="L247">            try (ResultSet resultSet = statement.executeQuery()) {</span>
+<span class="nc bnc" id="L248" title="All 2 branches missed.">                if (resultSet.next()) {</span>
+<span class="nc" id="L249">                    return resultSet.getInt(&quot;id&quot;);</span>
+                }
+            }
+        }
+
+<span class="nc" id="L254">        int genereId = nextId(connection, &quot;generi&quot;);</span>
+<span class="nc" id="L255">        Timestamp now = Timestamp.valueOf(LocalDateTime.now());</span>
+<span class="nc" id="L256">        String insert = &quot;&quot;&quot;</span>
+                INSERT INTO generi (id, genere, created_at, updated_at, deleted_at)
+                VALUES (?, ?, ?, ?, ?)
+                &quot;&quot;&quot;;
+<span class="nc" id="L260">        try (PreparedStatement statement = connection.prepareStatement(insert)) {</span>
+<span class="nc" id="L261">            statement.setInt(1, genereId);</span>
+<span class="nc" id="L262">            statement.setString(2, genere);</span>
+<span class="nc" id="L263">            statement.setTimestamp(3, now);</span>
+<span class="nc" id="L264">            statement.setTimestamp(4, now);</span>
+<span class="nc" id="L265">            statement.setTimestamp(5, null);</span>
+<span class="nc" id="L266">            statement.executeUpdate();</span>
+        }
+<span class="nc" id="L268">        return genereId;</span>
+    }
+
+    private Integer findChildId(Connection connection, String tableName, int filmId) throws SQLException {
+<span class="nc" id="L272">        String query = &quot;SELECT id FROM %s WHERE id_film = ? AND deleted_at IS NULL LIMIT 1&quot;.formatted(tableName);</span>
+<span class="nc" id="L273">        try (PreparedStatement statement = connection.prepareStatement(query)) {</span>
+<span class="nc" id="L274">            statement.setInt(1, filmId);</span>
+<span class="nc" id="L275">            try (ResultSet resultSet = statement.executeQuery()) {</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">                if (resultSet.next()) {</span>
+<span class="nc" id="L277">                    return resultSet.getInt(&quot;id&quot;);</span>
+                }
+            }
+        }
+<span class="nc" id="L281">        return null;</span>
+    }
+
+    private void deleteByFilmId(Connection connection, String tableName, int filmId) throws SQLException {
+<span class="nc" id="L285">        String query = &quot;DELETE FROM %s WHERE id_film = ?&quot;.formatted(tableName);</span>
+<span class="nc" id="L286">        try (PreparedStatement statement = connection.prepareStatement(query)) {</span>
+<span class="nc" id="L287">            statement.setInt(1, filmId);</span>
+<span class="nc" id="L288">            statement.executeUpdate();</span>
+        }
+<span class="nc" id="L290">    }</span>
+
+    private int nextId(Connection connection, String tableName) throws SQLException {
+<span class="nc" id="L293">        String query = &quot;SELECT COALESCE(MAX(id), 0) + 1 AS next_id FROM %s&quot;.formatted(tableName);</span>
+<span class="nc" id="L294">        try (PreparedStatement statement = connection.prepareStatement(query);</span>
+<span class="nc" id="L295">             ResultSet resultSet = statement.executeQuery()) {</span>
+<span class="nc" id="L296">            resultSet.next();</span>
+<span class="nc" id="L297">            return resultSet.getInt(&quot;next_id&quot;);</span>
+        }
+    }
+
+    private String baseSelectQuery() {
+<span class="fc" id="L302">        return &quot;&quot;&quot;</span>
+                SELECT f.id,
+                       f.titolo,
+                       r.nome AS regista_nome,
+                       r.cognome AS regista_cognome,
+                       f.anno_di_uscita,
+                       g.genere,
+                       vp.valutazione_personale,
+                       s.stato_visione
+                FROM film f
+                JOIN registi r ON r.id = f.id_regista
+                JOIN generi g ON g.id = f.id_genere
+                LEFT JOIN valutazioni_personali vp ON vp.id_film = f.id AND vp.deleted_at IS NULL
+                LEFT JOIN stati s ON s.id_film = f.id AND s.deleted_at IS NULL
+                WHERE f.deleted_at IS NULL
+                &quot;&quot;&quot;;
+    }
+
+    private Film mapFilm(ResultSet resultSet) throws SQLException {
+<span class="nc" id="L321">        Integer id = resultSet.getInt(&quot;id&quot;);</span>
+<span class="nc" id="L322">        String titolo = resultSet.getString(&quot;titolo&quot;);</span>
+<span class="nc" id="L323">        String registaNome = resultSet.getString(&quot;regista_nome&quot;);</span>
+<span class="nc" id="L324">        String registaCognome = resultSet.getString(&quot;regista_cognome&quot;);</span>
+<span class="nc" id="L325">        int annoUscita = Integer.parseInt(resultSet.getString(&quot;anno_di_uscita&quot;));</span>
+<span class="nc" id="L326">        String genere = resultSet.getString(&quot;genere&quot;);</span>
+<span class="nc" id="L327">        int valutazione = Integer.parseInt(resultSet.getString(&quot;valutazione_personale&quot;));</span>
+<span class="nc" id="L328">        StatoVisione statoVisione = parseStatoVisione(resultSet.getString(&quot;stato_visione&quot;));</span>
+
+<span class="nc" id="L330">        return new Film(</span>
+<span class="nc" id="L331">                id,</span>
+<span class="nc" id="L332">                titolo,</span>
+<span class="nc" id="L333">                new Regista(null, registaNome, normalizeOptional(registaCognome)),</span>
+<span class="nc" id="L334">                annoUscita,</span>
+<span class="nc" id="L335">                new Genere(null, genere),</span>
+<span class="nc" id="L336">                valutazione,</span>
+<span class="nc" id="L337">                statoVisione</span>
+        );
+    }
+
+    private StatoVisione parseStatoVisione(String rawValue) {
+<span class="pc bpc" id="L342" title="1 of 4 branches missed.">        if (rawValue == null || rawValue.isBlank()) {</span>
+<span class="fc" id="L343">            throw new IllegalArgumentException(&quot;stato_visione mancante nel database.&quot;);</span>
+        }
+
+<span class="fc" id="L346">        String normalized = rawValue.trim()</span>
+<span class="fc" id="L347">                .toUpperCase(Locale.ROOT)</span>
+<span class="fc" id="L348">                .replace(' ', '_');</span>
+<span class="fc" id="L349">        return StatoVisione.valueOf(normalized);</span>
+    }
+
+    private String normalizeOptional(String value) {
+<span class="pc bpc" id="L353" title="1 of 4 branches missed.">        if (value == null || value.isBlank()) {</span>
+<span class="fc" id="L354">            return null;</span>
+        }
+<span class="fc" id="L356">        return value.trim();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

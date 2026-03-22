@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilmLibraryCommandFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">progettoids_giuseppedemarco</a> &gt; <a href="index.source.html" class="el_package">com.progettoids_giuseppedemarco.ui.dashboard</a> &gt; <span class="el_source">FilmLibraryCommandFactory.java</span></div><h1>FilmLibraryCommandFactory.java</h1><pre class="source lang-java linenums">package com.progettoids_giuseppedemarco.ui.dashboard;
+
+import com.progettoids_giuseppedemarco.command.LibraryCommand;
+import com.progettoids_giuseppedemarco.command.SimpleLibraryCommand;
+
+import java.util.List;
+
+public final class FilmLibraryCommandFactory {
+    private FilmLibraryCommandFactory() {
+    }
+
+    public static List&lt;LibraryCommand&gt; create(FilmLibraryDashboardController controller) {
+<span class="fc" id="L13">        return List.of(</span>
+<span class="fc" id="L14">                new SimpleLibraryCommand(&quot;Aggiungi film&quot;, controller::addFilm),</span>
+<span class="fc" id="L15">                new SimpleLibraryCommand(&quot;Aggiorna film&quot;, controller::updateFilm),</span>
+<span class="fc" id="L16">                new SimpleLibraryCommand(&quot;Rimuovi film&quot;, controller::removeFilm),</span>
+<span class="fc" id="L17">                new SimpleLibraryCommand(&quot;Ordina per titolo&quot;, controller::sortByTitle),</span>
+<span class="fc" id="L18">                new SimpleLibraryCommand(&quot;Ordina per regista&quot;, controller::sortByDirector),</span>
+<span class="fc" id="L19">                new SimpleLibraryCommand(&quot;Ordina per stato visione&quot;, controller::sortByStatus),</span>
+<span class="fc" id="L20">                new SimpleLibraryCommand(&quot;Ripristina elenco&quot;, controller::showRepositoryOrder),</span>
+<span class="fc" id="L21">                new SimpleLibraryCommand(&quot;Salva file&quot;, controller::saveLibrary)</span>
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

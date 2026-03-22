@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InMemoryFilmRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">progettoids_giuseppedemarco</a> &gt; <a href="index.source.html" class="el_package">com.progettoids_giuseppedemarco.repository.inmemory</a> &gt; <span class="el_source">InMemoryFilmRepository.java</span></div><h1>InMemoryFilmRepository.java</h1><pre class="source lang-java linenums">package com.progettoids_giuseppedemarco.repository.inmemory;
+
+import com.progettoids_giuseppedemarco.domain.Film;
+import com.progettoids_giuseppedemarco.repository.FilmRepository;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+
+<span class="fc" id="L13">public class InMemoryFilmRepository implements FilmRepository {</span>
+<span class="fc" id="L14">    private final Map&lt;Integer, Film&gt; filmStore = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L15">    private final AtomicInteger nextId = new AtomicInteger(1);</span>
+
+    @Override
+    public Film save(Film entity) {
+<span class="fc" id="L19">        Integer id = entity.getId();</span>
+<span class="fc" id="L20">        Film persisted = entity;</span>
+
+<span class="pc bpc" id="L22" title="1 of 4 branches missed.">        if (id == null || id &lt;= 0) {</span>
+<span class="fc" id="L23">            persisted = entity.withId(nextId.getAndIncrement());</span>
+<span class="fc" id="L24">            id = persisted.getId();</span>
+<span class="fc" id="L25">        } else {</span>
+<span class="fc" id="L26">            final int candidate = id + 1;</span>
+<span class="fc" id="L27">            nextId.updateAndGet(current -&gt; Math.max(current, candidate));</span>
+        }
+
+<span class="fc" id="L30">        filmStore.put(id, persisted);</span>
+<span class="fc" id="L31">        return persisted;</span>
+    }
+
+    @Override
+    public Optional&lt;Film&gt; findById(Integer id) {
+<span class="fc" id="L36">        return Optional.ofNullable(filmStore.get(id));</span>
+    }
+
+    @Override
+    public List&lt;Film&gt; findAll() {
+<span class="fc" id="L41">        return new ArrayList&lt;&gt;(filmStore.values());</span>
+    }
+
+    @Override
+    public void deleteById(Integer id) {
+<span class="fc" id="L46">        filmStore.remove(id);</span>
+<span class="fc" id="L47">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

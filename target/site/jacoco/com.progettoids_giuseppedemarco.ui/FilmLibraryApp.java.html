@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilmLibraryApp.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">progettoids_giuseppedemarco</a> &gt; <a href="index.source.html" class="el_package">com.progettoids_giuseppedemarco.ui</a> &gt; <span class="el_source">FilmLibraryApp.java</span></div><h1>FilmLibraryApp.java</h1><pre class="source lang-java linenums">package com.progettoids_giuseppedemarco.ui;
+
+import com.progettoids_giuseppedemarco.domain.Film;
+import com.progettoids_giuseppedemarco.infrastructure.NoteFilmStorage;
+import com.progettoids_giuseppedemarco.repository.FilmRepository;
+import com.progettoids_giuseppedemarco.repository.db.DatabaseFilmRepository;
+import com.progettoids_giuseppedemarco.repository.inmemory.InMemoryFilmRepository;
+import com.progettoids_giuseppedemarco.service.FilmLibraryService;
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
+
+<span class="fc" id="L25">public class FilmLibraryApp extends Application {</span>
+<span class="fc" id="L26">    private final NoteFilmStorage noteFilmStorage = new NoteFilmStorage();</span>
+
+<span class="fc" id="L28">    private FilmLibraryService libraryService = new FilmLibraryService(new InMemoryFilmRepository());</span>
+    private Path currentNotePath;
+
+    public static void launchApp(String[] args) {
+<span class="nc" id="L32">        launch(args);</span>
+<span class="nc" id="L33">    }</span>
+
+    @Override
+    public void start(Stage stage) {
+<span class="nc" id="L37">        Label titleLabel = new Label(&quot;Benvenuto nella libreria di film&quot;);</span>
+
+<span class="nc" id="L39">        Label subtitleLabel = new Label(&quot;Scegli la sorgente iniziale dei dati per continuare.&quot;);</span>
+<span class="nc" id="L40">        subtitleLabel.setWrapText(true);</span>
+<span class="nc" id="L41">        subtitleLabel.setMaxWidth(280);</span>
+
+<span class="nc" id="L43">        Button localButton = new Button(&quot;Carica file&quot;);</span>
+<span class="nc" id="L44">        localButton.setOnAction(event -&gt; loadLocalLibrary(stage));</span>
+<span class="nc" id="L45">        localButton.setMaxWidth(Double.MAX_VALUE);</span>
+
+<span class="nc" id="L47">        Button dbButton = new Button(&quot;Carica da DB&quot;);</span>
+<span class="nc" id="L48">        dbButton.setOnAction(event -&gt; loadFromDatabase(stage));</span>
+<span class="nc" id="L49">        dbButton.setMaxWidth(Double.MAX_VALUE);</span>
+
+<span class="nc" id="L51">        VBox root = new VBox(12, titleLabel, subtitleLabel, localButton, dbButton);</span>
+<span class="nc" id="L52">        root.setAlignment(Pos.CENTER);</span>
+<span class="nc" id="L53">        root.setPadding(new Insets(24));</span>
+<span class="nc" id="L54">        root.setPrefWidth(320);</span>
+
+<span class="nc" id="L56">        Scene scene = new Scene(root, 360, 220);</span>
+<span class="nc" id="L57">        stage.setTitle(&quot;Libreria di Film&quot;);</span>
+<span class="nc" id="L58">        stage.setScene(scene);</span>
+<span class="nc" id="L59">        stage.setMinWidth(340);</span>
+<span class="nc" id="L60">        stage.setMinHeight(220);</span>
+<span class="nc" id="L61">        stage.show();</span>
+<span class="nc" id="L62">    }</span>
+
+    private void loadLocalLibrary(Stage stage) {
+<span class="nc" id="L65">        FileChooser fileChooser = createTextFileChooser(&quot;Seleziona il file della libreria&quot;);</span>
+<span class="nc" id="L66">        applyCurrentFileLocation(fileChooser);</span>
+<span class="nc" id="L67">        File selectedFile = fileChooser.showOpenDialog(stage);</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (selectedFile == null) {</span>
+<span class="nc" id="L69">            return;</span>
+        }
+
+        try {
+<span class="nc" id="L73">            List&lt;Film&gt; films = noteFilmStorage.load(selectedFile.toPath());</span>
+<span class="nc" id="L74">            FilmRepository filmRepository = new InMemoryFilmRepository();</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            for (Film film : films) {</span>
+<span class="nc" id="L76">                filmRepository.save(film);</span>
+            }
+
+<span class="nc" id="L79">            libraryService = new FilmLibraryService(filmRepository);</span>
+<span class="nc" id="L80">            currentNotePath = selectedFile.toPath();</span>
+<span class="nc" id="L81">            FilmLibraryDashboard.open(libraryService, noteFilmStorage, currentNotePath);</span>
+<span class="nc" id="L82">            stage.close();</span>
+<span class="nc" id="L83">        } catch (IOException | IllegalArgumentException e) {</span>
+<span class="nc" id="L84">            showAlert(Alert.AlertType.ERROR, &quot;Caricamento file non riuscito&quot;, e.getMessage());</span>
+        }
+<span class="nc" id="L86">    }</span>
+
+    private void loadFromDatabase(Stage stage) {
+        try {
+<span class="nc" id="L90">            FilmRepository filmRepository = new DatabaseFilmRepository();</span>
+<span class="nc" id="L91">            filmRepository.findAll();</span>
+<span class="nc" id="L92">            libraryService = new FilmLibraryService(filmRepository);</span>
+<span class="nc" id="L93">            currentNotePath = null;</span>
+<span class="nc" id="L94">            FilmLibraryDashboard.open(libraryService, noteFilmStorage, null);</span>
+<span class="nc" id="L95">            stage.close();</span>
+<span class="nc" id="L96">        } catch (IllegalStateException | IllegalArgumentException e) {</span>
+<span class="nc" id="L97">            showAlert(Alert.AlertType.ERROR, &quot;Caricamento da database non riuscito&quot;, buildDetailedMessage(e));</span>
+        }
+<span class="nc" id="L99">    }</span>
+
+    private FileChooser createTextFileChooser(String title) {
+<span class="nc" id="L102">        FileChooser fileChooser = new FileChooser();</span>
+<span class="nc" id="L103">        fileChooser.setTitle(title);</span>
+<span class="nc" id="L104">        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(&quot;File di testo&quot;, &quot;*.txt&quot;));</span>
+<span class="nc" id="L105">        return fileChooser;</span>
+    }
+
+    private void applyCurrentFileLocation(FileChooser fileChooser) {
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (currentNotePath == null) {</span>
+<span class="nc" id="L110">            return;</span>
+        }
+
+<span class="nc" id="L113">        Path parent = currentNotePath.toAbsolutePath().getParent();</span>
+<span class="nc bnc" id="L114" title="All 4 branches missed.">        if (parent != null &amp;&amp; parent.toFile().exists()) {</span>
+<span class="nc" id="L115">            fileChooser.setInitialDirectory(parent.toFile());</span>
+        }
+<span class="nc" id="L117">    }</span>
+
+    private void showAlert(Alert.AlertType type, String title, String message) {
+<span class="nc" id="L120">        Alert alert = new Alert(type);</span>
+<span class="nc" id="L121">        alert.setTitle(title);</span>
+<span class="nc" id="L122">        alert.setHeaderText(null);</span>
+<span class="nc" id="L123">        alert.setContentText(message);</span>
+<span class="nc" id="L124">        alert.showAndWait();</span>
+<span class="nc" id="L125">    }</span>
+
+    private String buildDetailedMessage(Throwable throwable) {
+<span class="fc" id="L128">        StringBuilder builder = new StringBuilder();</span>
+<span class="pc bpc" id="L129" title="1 of 4 branches missed.">        if (throwable.getMessage() != null &amp;&amp; !throwable.getMessage().isBlank()) {</span>
+<span class="fc" id="L130">            builder.append(throwable.getMessage());</span>
+        }
+
+<span class="fc" id="L133">        Throwable cause = throwable.getCause();</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        while (cause != null) {</span>
+<span class="fc" id="L135">            String causeMessage = cause.getMessage();</span>
+<span class="pc bpc" id="L136" title="2 of 4 branches missed.">            if (causeMessage != null &amp;&amp; !causeMessage.isBlank()) {</span>
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">                if (!builder.isEmpty()) {</span>
+<span class="fc" id="L138">                    builder.append(&quot;\nDettaglio: &quot;);</span>
+                }
+<span class="fc" id="L140">                builder.append(causeMessage);</span>
+<span class="fc" id="L141">                break;</span>
+            }
+<span class="nc" id="L143">            cause = cause.getCause();</span>
+        }
+
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        return builder.isEmpty() ? &quot;Errore sconosciuto durante il caricamento da database.&quot; : builder.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Film.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">progettoids_giuseppedemarco</a> &gt; <a href="index.source.html" class="el_package">com.progettoids_giuseppedemarco.domain</a> &gt; <span class="el_source">Film.java</span></div><h1>Film.java</h1><pre class="source lang-java linenums">package com.progettoids_giuseppedemarco.domain;
+
+public class Film {
+    private final Integer id;
+    private final String titolo;
+    private final Regista regista;
+    private final int annoDiUscita;
+    private final Genere genere;
+    private final int valutazionePersonale;
+    private final StatoVisione statoVisione;
+
+<span class="fc" id="L12">    public Film(</span>
+            Integer id,
+            String titolo,
+            Regista regista,
+            int annoDiUscita,
+            Genere genere,
+            int valutazionePersonale,
+            StatoVisione statoVisione
+    ) {
+<span class="fc" id="L21">        this.id = id;</span>
+<span class="fc" id="L22">        this.titolo = titolo;</span>
+<span class="fc" id="L23">        this.regista = regista;</span>
+<span class="fc" id="L24">        this.annoDiUscita = annoDiUscita;</span>
+<span class="fc" id="L25">        this.genere = genere;</span>
+<span class="fc" id="L26">        this.valutazionePersonale = valutazionePersonale;</span>
+<span class="fc" id="L27">        this.statoVisione = statoVisione;</span>
+<span class="fc" id="L28">    }</span>
+
+    public Integer getId() {
+<span class="fc" id="L31">        return id;</span>
+    }
+
+    public String getTitolo() {
+<span class="fc" id="L35">        return titolo;</span>
+    }
+
+    public Regista getRegista() {
+<span class="fc" id="L39">        return regista;</span>
+    }
+
+    public int getAnnoDiUscita() {
+<span class="fc" id="L43">        return annoDiUscita;</span>
+    }
+
+    public Genere getGenere() {
+<span class="fc" id="L47">        return genere;</span>
+    }
+
+    public int getValutazionePersonale() {
+<span class="fc" id="L51">        return valutazionePersonale;</span>
+    }
+
+    public StatoVisione getStatoVisione() {
+<span class="fc" id="L55">        return statoVisione;</span>
+    }
+
+    public Film withId(int newId) {
+<span class="fc" id="L59">        return new Film(</span>
+<span class="fc" id="L60">                newId,</span>
+<span class="fc" id="L61">                titolo,</span>
+<span class="fc" id="L62">                regista,</span>
+<span class="fc" id="L63">                annoDiUscita,</span>
+<span class="fc" id="L64">                genere,</span>
+<span class="fc" id="L65">                valutazionePersonale,</span>
+<span class="fc" id="L66">                statoVisione</span>
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

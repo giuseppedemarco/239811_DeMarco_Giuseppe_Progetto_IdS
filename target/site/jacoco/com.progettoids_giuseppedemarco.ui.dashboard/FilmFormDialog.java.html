@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilmFormDialog.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">progettoids_giuseppedemarco</a> &gt; <a href="index.source.html" class="el_package">com.progettoids_giuseppedemarco.ui.dashboard</a> &gt; <span class="el_source">FilmFormDialog.java</span></div><h1>FilmFormDialog.java</h1><pre class="source lang-java linenums">package com.progettoids_giuseppedemarco.ui.dashboard;
+
+import com.progettoids_giuseppedemarco.domain.Film;
+import com.progettoids_giuseppedemarco.domain.StatoVisione;
+
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import java.awt.Component;
+import java.awt.GridLayout;
+
+public final class FilmFormDialog {
+    private FilmFormDialog() {
+    }
+
+    public static FilmFormData show(Component parent, Film film) {
+<span class="nc bnc" id="L19" title="All 2 branches missed.">        JTextField titoloField = new JTextField(film == null ? &quot;&quot; : film.getTitolo());</span>
+<span class="nc bnc" id="L20" title="All 2 branches missed.">        JTextField registaNomeField = new JTextField(film == null ? &quot;&quot; : film.getRegista().getNome());</span>
+<span class="nc bnc" id="L21" title="All 2 branches missed.">        JTextField registaCognomeField = new JTextField(film == null ? &quot;&quot; : safeText(film.getRegista().getCognome()));</span>
+<span class="nc bnc" id="L22" title="All 2 branches missed.">        JTextField annoField = new JTextField(film == null ? &quot;&quot; : String.valueOf(film.getAnnoDiUscita()));</span>
+<span class="nc bnc" id="L23" title="All 2 branches missed.">        JTextField genereField = new JTextField(film == null ? &quot;&quot; : film.getGenere().getNome());</span>
+<span class="nc bnc" id="L24" title="All 2 branches missed.">        JTextField valutazioneField = new JTextField(film == null ? &quot;&quot; : String.valueOf(film.getValutazionePersonale()));</span>
+<span class="nc" id="L25">        JComboBox&lt;StatoVisione&gt; statoCombo = new JComboBox&lt;&gt;(StatoVisione.values());</span>
+<span class="nc bnc" id="L26" title="All 2 branches missed.">        if (film != null) {</span>
+<span class="nc" id="L27">            statoCombo.setSelectedItem(film.getStatoVisione());</span>
+        }
+
+<span class="nc" id="L30">        JPanel formPanel = new JPanel(new GridLayout(0, 2, 8, 8));</span>
+<span class="nc" id="L31">        formPanel.add(new JLabel(&quot;Titolo&quot;));</span>
+<span class="nc" id="L32">        formPanel.add(titoloField);</span>
+<span class="nc" id="L33">        formPanel.add(new JLabel(&quot;Nome regista&quot;));</span>
+<span class="nc" id="L34">        formPanel.add(registaNomeField);</span>
+<span class="nc" id="L35">        formPanel.add(new JLabel(&quot;Cognome regista&quot;));</span>
+<span class="nc" id="L36">        formPanel.add(registaCognomeField);</span>
+<span class="nc" id="L37">        formPanel.add(new JLabel(&quot;Anno di uscita&quot;));</span>
+<span class="nc" id="L38">        formPanel.add(annoField);</span>
+<span class="nc" id="L39">        formPanel.add(new JLabel(&quot;Genere&quot;));</span>
+<span class="nc" id="L40">        formPanel.add(genereField);</span>
+<span class="nc" id="L41">        formPanel.add(new JLabel(&quot;Valutazione (1-5)&quot;));</span>
+<span class="nc" id="L42">        formPanel.add(valutazioneField);</span>
+<span class="nc" id="L43">        formPanel.add(new JLabel(&quot;Stato visione&quot;));</span>
+<span class="nc" id="L44">        formPanel.add(statoCombo);</span>
+
+<span class="nc" id="L46">        int result = JOptionPane.showConfirmDialog(</span>
+<span class="nc" id="L47">                parent,</span>
+<span class="nc" id="L48">                formPanel,</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">                film == null ? &quot;Nuovo film&quot; : &quot;Aggiorna film&quot;,</span>
+<span class="nc" id="L50">                JOptionPane.OK_CANCEL_OPTION,</span>
+<span class="nc" id="L51">                JOptionPane.PLAIN_MESSAGE</span>
+        );
+
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (result != JOptionPane.OK_OPTION) {</span>
+<span class="nc" id="L55">            return null;</span>
+        }
+
+<span class="nc" id="L58">        return new FilmFormData(</span>
+<span class="nc" id="L59">                titoloField.getText(),</span>
+<span class="nc" id="L60">                registaNomeField.getText(),</span>
+<span class="nc" id="L61">                registaCognomeField.getText(),</span>
+<span class="nc" id="L62">                annoField.getText(),</span>
+<span class="nc" id="L63">                genereField.getText(),</span>
+<span class="nc" id="L64">                valutazioneField.getText(),</span>
+<span class="nc" id="L65">                (StatoVisione) statoCombo.getSelectedItem()</span>
+        );
+    }
+
+    private static String safeText(String value) {
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        return value == null ? &quot;&quot; : value;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

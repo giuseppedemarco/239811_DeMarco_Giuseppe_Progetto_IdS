@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FilmLibraryDashboardController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">progettoids_giuseppedemarco</a> &gt; <a href="index.source.html" class="el_package">com.progettoids_giuseppedemarco.ui.dashboard</a> &gt; <span class="el_source">FilmLibraryDashboardController.java</span></div><h1>FilmLibraryDashboardController.java</h1><pre class="source lang-java linenums">package com.progettoids_giuseppedemarco.ui.dashboard;
+
+import com.progettoids_giuseppedemarco.builder.ConcreteFilmBuilder;
+import com.progettoids_giuseppedemarco.domain.Film;
+import com.progettoids_giuseppedemarco.domain.Genere;
+import com.progettoids_giuseppedemarco.domain.Regista;
+import com.progettoids_giuseppedemarco.infrastructure.NoteFilmStorage;
+import com.progettoids_giuseppedemarco.service.FilmLibraryService;
+import com.progettoids_giuseppedemarco.strategy.SortByRegistaStrategy;
+import com.progettoids_giuseppedemarco.strategy.SortByStatoVisioneStrategy;
+import com.progettoids_giuseppedemarco.strategy.SortByTitoloStrategy;
+
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.Component;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.function.Consumer;
+
+public class FilmLibraryDashboardController {
+    private final Component parentComponent;
+    private final FilmLibraryService libraryService;
+    private final NoteFilmStorage noteFilmStorage;
+    private Path currentNotePath;
+    private final Consumer&lt;List&lt;Film&gt;&gt; showFilms;
+    private final Consumer&lt;String&gt; showFeedback;
+    private final Consumer&lt;String&gt; showError;
+
+<span class="fc" id="L33">    public FilmLibraryDashboardController(</span>
+            Component parentComponent,
+            FilmLibraryService libraryService,
+            NoteFilmStorage noteFilmStorage,
+            Path currentNotePath,
+            Consumer&lt;List&lt;Film&gt;&gt; showFilms,
+            Consumer&lt;String&gt; showFeedback,
+            Consumer&lt;String&gt; showError
+    ) {
+<span class="fc" id="L42">        this.parentComponent = parentComponent;</span>
+<span class="fc" id="L43">        this.libraryService = libraryService;</span>
+<span class="fc" id="L44">        this.noteFilmStorage = noteFilmStorage;</span>
+<span class="fc" id="L45">        this.currentNotePath = currentNotePath;</span>
+<span class="fc" id="L46">        this.showFilms = showFilms;</span>
+<span class="fc" id="L47">        this.showFeedback = showFeedback;</span>
+<span class="fc" id="L48">        this.showError = showError;</span>
+<span class="fc" id="L49">    }</span>
+
+    public void addFilm() {
+<span class="nc" id="L52">        FilmFormData formData = FilmFormDialog.show(parentComponent, null);</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (formData == null) {</span>
+<span class="nc" id="L54">            return;</span>
+        }
+
+        try {
+<span class="nc" id="L58">            ConcreteFilmBuilder builder = buildFilmBuilder(formData, null);</span>
+<span class="nc" id="L59">            Film savedFilm = libraryService.aggiungiFilm(builder);</span>
+<span class="nc" id="L60">            showRepositoryOrder();</span>
+<span class="nc" id="L61">            showFeedback.accept(&quot;Film aggiunto con successo: &quot; + savedFilm.getTitolo());</span>
+<span class="nc" id="L62">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L63">            showError.accept(e.getMessage());</span>
+        }
+<span class="nc" id="L65">    }</span>
+
+    public void updateFilm() {
+<span class="nc" id="L68">        String idText = askFilmId(&quot;Aggiorna film&quot;, &quot;Inserisci l'id del film da aggiornare:&quot;);</span>
+<span class="nc bnc" id="L69" title="All 4 branches missed.">        if (idText == null || idText.isBlank()) {</span>
+<span class="nc" id="L70">            return;</span>
+        }
+
+        try {
+<span class="nc" id="L74">            int id = Integer.parseInt(idText.trim());</span>
+<span class="nc" id="L75">            Film existingFilm = libraryService.trovaFilmPerId(id);</span>
+<span class="nc" id="L76">            FilmFormData formData = FilmFormDialog.show(parentComponent, existingFilm);</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (formData == null) {</span>
+<span class="nc" id="L78">                return;</span>
+            }
+
+<span class="nc" id="L81">            ConcreteFilmBuilder builder = buildFilmBuilder(formData, id);</span>
+<span class="nc" id="L82">            Film updatedFilm = libraryService.aggiornaFilm(id, builder);</span>
+<span class="nc" id="L83">            showRepositoryOrder();</span>
+<span class="nc" id="L84">            showFeedback.accept(&quot;Film aggiornato: &quot; + updatedFilm.getTitolo());</span>
+<span class="nc" id="L85">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L86">            showError.accept(&quot;L'id inserito non e' numerico.&quot;);</span>
+<span class="nc" id="L87">        } catch (NoSuchElementException | IllegalArgumentException e) {</span>
+<span class="nc" id="L88">            showError.accept(e.getMessage());</span>
+        }
+<span class="nc" id="L90">    }</span>
+
+    public void removeFilm() {
+<span class="nc" id="L93">        String idText = askFilmId(&quot;Rimuovi film&quot;, &quot;Inserisci l'id del film da rimuovere:&quot;);</span>
+<span class="nc bnc" id="L94" title="All 4 branches missed.">        if (idText == null || idText.isBlank()) {</span>
+<span class="nc" id="L95">            return;</span>
+        }
+
+        try {
+<span class="nc" id="L99">            int id = Integer.parseInt(idText.trim());</span>
+<span class="nc" id="L100">            Film film = libraryService.trovaFilmPerId(id);</span>
+<span class="nc" id="L101">            libraryService.rimuoviFilm(id);</span>
+<span class="nc" id="L102">            showRepositoryOrder();</span>
+<span class="nc" id="L103">            showFeedback.accept(&quot;Film rimosso: &quot; + film.getTitolo());</span>
+<span class="nc" id="L104">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L105">            showError.accept(&quot;L'id inserito non e' numerico.&quot;);</span>
+<span class="nc" id="L106">        } catch (NoSuchElementException e) {</span>
+<span class="nc" id="L107">            showError.accept(e.getMessage());</span>
+        }
+<span class="nc" id="L109">    }</span>
+
+    public void sortByTitle() {
+<span class="fc" id="L112">        showSorted(&quot;Elenco ordinato per titolo.&quot;, libraryService.ordina(new SortByTitoloStrategy()));</span>
+<span class="fc" id="L113">    }</span>
+
+    public void sortByDirector() {
+<span class="fc" id="L116">        showSorted(&quot;Elenco ordinato per regista.&quot;, libraryService.ordina(new SortByRegistaStrategy()));</span>
+<span class="fc" id="L117">    }</span>
+
+    public void sortByStatus() {
+<span class="fc" id="L120">        showSorted(&quot;Elenco ordinato per stato visione.&quot;, libraryService.ordina(new SortByStatoVisioneStrategy()));</span>
+<span class="fc" id="L121">    }</span>
+
+    public void showRepositoryOrder() {
+<span class="fc" id="L124">        showFilms.accept(new ArrayList&lt;&gt;(libraryService.listaFilm()));</span>
+<span class="fc" id="L125">        showFeedback.accept(&quot;Elenco aggiornato.&quot;);</span>
+<span class="fc" id="L126">    }</span>
+
+    public void saveLibrary() {
+        try {
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            if (currentNotePath == null) {</span>
+<span class="nc" id="L131">                JFileChooser fileChooser = new JFileChooser();</span>
+<span class="nc" id="L132">                fileChooser.setDialogTitle(&quot;Salva libreria come file di testo&quot;);</span>
+<span class="nc" id="L133">                fileChooser.setFileFilter(new FileNameExtensionFilter(&quot;File di testo (*.txt)&quot;, &quot;txt&quot;));</span>
+<span class="nc" id="L134">                fileChooser.setSelectedFile(new File(&quot;libreria-film.txt&quot;));</span>
+
+<span class="nc" id="L136">                int result = fileChooser.showSaveDialog(parentComponent);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">                if (result != JFileChooser.APPROVE_OPTION) {</span>
+<span class="nc" id="L138">                    return;</span>
+                }
+
+<span class="nc" id="L141">                File selectedFile = fileChooser.getSelectedFile();</span>
+<span class="nc" id="L142">                String path = selectedFile.getAbsolutePath();</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">                if (!path.toLowerCase().endsWith(&quot;.txt&quot;)) {</span>
+<span class="nc" id="L144">                    selectedFile = new File(path + &quot;.txt&quot;);</span>
+                }
+<span class="nc" id="L146">                currentNotePath = selectedFile.toPath();</span>
+            }
+
+<span class="nc" id="L149">            noteFilmStorage.save(currentNotePath, libraryService.listaFilm());</span>
+<span class="nc" id="L150">            showFeedback.accept(&quot;Libreria salvata in: &quot; + currentNotePath.toAbsolutePath());</span>
+<span class="nc" id="L151">        } catch (Exception e) {</span>
+<span class="nc" id="L152">            showError.accept(&quot;Salvataggio non riuscito: &quot; + e.getMessage());</span>
+        }
+<span class="nc" id="L154">    }</span>
+
+    private void showSorted(String message, List&lt;Film&gt; films) {
+<span class="fc" id="L157">        showFilms.accept(new ArrayList&lt;&gt;(films));</span>
+<span class="fc" id="L158">        showFeedback.accept(message);</span>
+<span class="fc" id="L159">    }</span>
+
+    private ConcreteFilmBuilder buildFilmBuilder(FilmFormData formData, Integer id) {
+        try {
+<span class="nc" id="L163">            ConcreteFilmBuilder builder = new ConcreteFilmBuilder();</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">            if (id != null) {</span>
+<span class="nc" id="L165">                builder.setId(id);</span>
+            }
+<span class="nc" id="L167">            builder.setTitolo(formData.titolo().trim());</span>
+<span class="nc" id="L168">            builder.setRegista(new Regista(null, formData.registaNome().trim(), normalizeOptional(formData.registaCognome())));</span>
+<span class="nc" id="L169">            builder.setAnnoDiUscita(Integer.parseInt(formData.annoDiUscita().trim()));</span>
+<span class="nc" id="L170">            builder.setGenere(new Genere(null, formData.genere().trim()));</span>
+<span class="nc" id="L171">            builder.setValutazionePersonale(Integer.parseInt(formData.valutazione().trim()));</span>
+<span class="nc" id="L172">            builder.setStatoVisione(formData.statoVisione());</span>
+<span class="nc" id="L173">            return builder;</span>
+<span class="nc" id="L174">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L175">            throw new IllegalArgumentException(&quot;Anno e valutazione devono essere numerici.&quot;);</span>
+        }
+    }
+
+    private String askFilmId(String title, String message) {
+<span class="nc" id="L180">        return JOptionPane.showInputDialog(parentComponent, message, title, JOptionPane.QUESTION_MESSAGE);</span>
+    }
+
+    private String normalizeOptional(String value) {
+<span class="nc bnc" id="L184" title="All 4 branches missed.">        if (value == null || value.isBlank()) {</span>
+<span class="nc" id="L185">            return null;</span>
+        }
+<span class="nc" id="L187">        return value.trim();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
