@@ -1,0 +1,53 @@
+@startuml
+title Builder Pattern - Class Diagram
+skinparam classAttributeIconSize 0
+left to right direction
+
+interface FilmBuilder {
+  +reset() : void
+  +setId(id : Integer) : void
+  +setTitolo(titolo : String) : void
+  +setRegista(regista : Regista) : void
+  +setAnnoDiUscita(anno : int) : void
+  +setGenere(genere : Genere) : void
+  +setValutazionePersonale(valutazione : int) : void
+  +setStatoVisione(stato : StatoVisione) : void
+  +getResult() : Film
+}
+
+class ConcreteFilmBuilder {
+  -id : Integer
+  -titolo : String
+  -regista : Regista
+  -annoDiUscita : int
+  -genere : Genere
+  -valutazionePersonale : int
+  -statoVisione : StatoVisione
+  +ConcreteFilmBuilder()
+  +from(film : Film) : ConcreteFilmBuilder
+  +reset() : void
+  +getResult() : Film
+}
+
+class FilmDirector {
+  +buildFilmCompleto(builder : FilmBuilder, titolo : String, regista : Regista, annoDiUscita : int, genere : Genere, valutazionePersonale : int, statoVisione : StatoVisione) : void
+}
+
+class FilmLibraryService {
+  +aggiungiFilm(builder : FilmBuilder) : Film
+  +aggiornaFilm(id : int, builder : FilmBuilder) : Film
+}
+
+class Film
+class Regista
+class Genere
+enum StatoVisione
+
+ConcreteFilmBuilder ..|> FilmBuilder
+ConcreteFilmBuilder --> Film : builds
+ConcreteFilmBuilder --> Regista
+ConcreteFilmBuilder --> Genere
+ConcreteFilmBuilder --> StatoVisione
+FilmDirector --> FilmBuilder : builds
+FilmLibraryService --> FilmBuilder : uses
+@enduml
