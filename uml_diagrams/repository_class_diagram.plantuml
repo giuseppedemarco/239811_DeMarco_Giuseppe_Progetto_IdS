@@ -1,0 +1,63 @@
+@startuml
+title Repository Layer - Class Diagram
+skinparam classAttributeIconSize 0
+left to right direction
+
+interface "CrudRepository" as CrudRepository {
+  +save(entity : T) : T
+  +findById(id : ID) : Optional<T>
+  +findAll() : List<T>
+  +deleteById(id : ID) : void
+}
+
+interface FilmRepository {
+}
+
+class InMemoryFilmRepository {
+  -filmStore : Map<Integer, Film>
+  -nextId : AtomicInteger
+  +save(entity : Film) : Film
+  +findById(id : Integer) : Optional<Film>
+  +findAll() : List<Film>
+  +deleteById(id : Integer) : void
+}
+
+class DatabaseFilmRepository {
+  +save(entity : Film) : Film
+  +findById(id : Integer) : Optional<Film>
+  +findAll() : List<Film>
+  +deleteById(id : Integer) : void
+}
+
+class DatabaseConnectionManager {
+  -instance : DatabaseConnectionManager
+  -url : String
+  -username : String
+  -password : String
+  +getInstance() : DatabaseConnectionManager
+  +configure(url : String, username : String, password : String) : void
+  +openConnection() : Connection
+}
+
+class FilmLibraryService {
+  -filmRepository : FilmRepository
+}
+
+class Film
+class Regista
+class Genere
+enum StatoVisione
+
+FilmRepository --|> CrudRepository
+InMemoryFilmRepository ..|> FilmRepository
+DatabaseFilmRepository ..|> FilmRepository
+
+FilmLibraryService --> FilmRepository : uses
+InMemoryFilmRepository --> Film : stores
+DatabaseFilmRepository --> Film : maps
+DatabaseFilmRepository --> Regista : maps
+DatabaseFilmRepository --> Genere : maps
+DatabaseFilmRepository --> StatoVisione : maps
+DatabaseFilmRepository --> DatabaseConnectionManager : uses
+
+@enduml
