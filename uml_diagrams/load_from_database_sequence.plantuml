@@ -1,0 +1,17 @@
+@startuml
+title Sequence Diagram - Carica da database
+
+actor Utente
+participant FilmLibraryApp
+participant DatabaseFilmRepository
+participant FilmLibraryService
+participant FilmLibraryDashboard
+
+Utente -> FilmLibraryApp : seleziona "Carica da DB"
+FilmLibraryApp -> DatabaseFilmRepository : findAll()
+DatabaseFilmRepository --> FilmLibraryApp : lista film
+FilmLibraryApp -> FilmLibraryService : crea service con repository DB
+FilmLibraryApp -> FilmLibraryDashboard : open(...)
+FilmLibraryDashboard --> Utente : mostra dashboard
+
+@enduml
