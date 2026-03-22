@@ -2,3 +2,4 @@ id,titolo,regista_nome,regista_cognome,anno_uscita,genere,valutazione,stato_visi
 1,Interstellar,Christopher,Nolan,2014,Fantascienza,5,VISTO
 3,Dune,Denis,Villeneuve,2021,Fantascienza,4,IN_VISIONE
 4,Natale al DIMES,Giuseppe,De Marco,2024,Comico,5,DA_VEDERE
+5,Tenet,Christopher,Nolan,2020,Azione,5,IN_VISIONE
