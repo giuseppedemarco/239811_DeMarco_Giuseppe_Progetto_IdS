@@ -10,8 +10,11 @@ import com.progettoids_giuseppedemarco.strategy.SortByRegistaStrategy;
 import com.progettoids_giuseppedemarco.strategy.SortByStatoVisioneStrategy;
 import com.progettoids_giuseppedemarco.strategy.SortByTitoloStrategy;
 
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.Component;
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +25,7 @@ public class FilmLibraryDashboardController {
     private final Component parentComponent;
     private final FilmLibraryService libraryService;
     private final NoteFilmStorage noteFilmStorage;
-    private final Path currentNotePath;
+    private Path currentNotePath;
     private final Consumer<List<Film>> showFilms;
     private final Consumer<String> showFeedback;
     private final Consumer<String> showError;
@@ -123,12 +126,26 @@ public class FilmLibraryDashboardController {
     }
 
     public void saveLibrary() {
-        if (currentNotePath == null) {
-            showError.accept("Nessun file associato alla libreria corrente.");
-            return;
-        }
-
         try {
+            if (currentNotePath == null) {
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setDialogTitle("Salva libreria come file di testo");
+                fileChooser.setFileFilter(new FileNameExtensionFilter("File di testo (*.txt)", "txt"));
+                fileChooser.setSelectedFile(new File("libreria-film.txt"));
+
+                int result = fileChooser.showSaveDialog(parentComponent);
+                if (result != JFileChooser.APPROVE_OPTION) {
+                    return;
+                }
+
+                File selectedFile = fileChooser.getSelectedFile();
+                String path = selectedFile.getAbsolutePath();
+                if (!path.toLowerCase().endsWith(".txt")) {
+                    selectedFile = new File(path + ".txt");
+                }
+                currentNotePath = selectedFile.toPath();
+            }
+
             noteFilmStorage.save(currentNotePath, libraryService.listaFilm());
             showFeedback.accept("Libreria salvata in: " + currentNotePath.toAbsolutePath());
         } catch (Exception e) {
