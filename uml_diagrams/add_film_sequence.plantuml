@@ -1,0 +1,24 @@
+@startuml
+title Sequence Diagram - Aggiungi film
+
+actor Utente
+participant FilmLibraryDashboard
+participant FilmLibraryDashboardController
+participant FilmFormDialog
+participant ConcreteFilmBuilder
+participant FilmLibraryService
+participant FilmRepository
+
+Utente -> FilmLibraryDashboard : click "Aggiungi film"
+FilmLibraryDashboard -> FilmLibraryDashboardController : addFilm()
+FilmLibraryDashboardController -> FilmFormDialog : show(...)
+FilmFormDialog --> FilmLibraryDashboardController : dati film
+FilmLibraryDashboardController -> ConcreteFilmBuilder : costruisci film
+ConcreteFilmBuilder --> FilmLibraryDashboardController : builder
+FilmLibraryDashboardController -> FilmLibraryService : aggiungiFilm(builder)
+FilmLibraryService -> FilmRepository : save(film)
+FilmRepository --> FilmLibraryService : film salvato
+FilmLibraryService --> FilmLibraryDashboardController : conferma
+FilmLibraryDashboardController -> FilmLibraryDashboard : aggiorna elenco
+
+@enduml
