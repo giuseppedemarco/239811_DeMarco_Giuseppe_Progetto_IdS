@@ -1,0 +1,47 @@
+@startuml
+title Strategy Pattern - Class Diagram
+skinparam classAttributeIconSize 0
+left to right direction
+
+class FilmLibraryService {
+  +ordina(strategy : FilmSortStrategy) : List<Film>
+}
+
+class FilmSortContext {
+  -strategy : FilmSortStrategy
+  +FilmSortContext(strategy : FilmSortStrategy)
+  +setStrategy(strategy : FilmSortStrategy) : void
+  +executeStrategy(films : List<Film>) : List<Film>
+}
+
+interface FilmSortStrategy {
+  +doAlgorithm(films : List<Film>) : List<Film>
+}
+
+class SortByTitoloStrategy {
+  +doAlgorithm(films : List<Film>) : List<Film>
+}
+
+class SortByRegistaStrategy {
+  +doAlgorithm(films : List<Film>) : List<Film>
+}
+
+class SortByStatoVisioneStrategy {
+  -ORDER : Map<StatoVisione, Integer>
+  +doAlgorithm(films : List<Film>) : List<Film>
+}
+
+class Film
+enum StatoVisione
+
+FilmLibraryService --> FilmSortStrategy : selects
+FilmLibraryService --> FilmSortContext : creates
+FilmSortContext --> FilmSortStrategy : uses
+SortByTitoloStrategy ..|> FilmSortStrategy
+SortByRegistaStrategy ..|> FilmSortStrategy
+SortByStatoVisioneStrategy ..|> FilmSortStrategy
+SortByTitoloStrategy --> Film : sorts
+SortByRegistaStrategy --> Film : sorts
+SortByStatoVisioneStrategy --> Film : sorts
+SortByStatoVisioneStrategy --> StatoVisione : uses order
+@enduml
