@@ -1,0 +1,51 @@
+@startuml
+title Command Pattern - Class Diagram
+skinparam classAttributeIconSize 0
+left to right direction
+
+interface LibraryCommand {
+  +getLabel() : String
+  +execute() : void
+}
+
+class SimpleLibraryCommand {
+  -label : String
+  -action : Runnable
+  +SimpleLibraryCommand(label : String, action : Runnable)
+  +getLabel() : String
+  +execute() : void
+}
+
+class FilmLibraryDashboard {
+  -controller : FilmLibraryDashboardController
+  -buildToolbar() : JPanel
+}
+
+class FilmLibraryCommandFactory {
+  +create(controller : FilmLibraryDashboardController) : List<LibraryCommand>
+}
+
+class FilmLibraryDashboardController {
+  +addFilm() : void
+  +updateFilm() : void
+  +removeFilm() : void
+  +sortByTitle() : void
+  +sortByDirector() : void
+  +sortByStatus() : void
+  +showRepositoryOrder() : void
+  +saveLibrary() : void
+}
+
+interface Runnable {
+  +run() : void
+}
+
+SimpleLibraryCommand ..|> LibraryCommand
+SimpleLibraryCommand --> Runnable : invokes
+FilmLibraryDashboard --> FilmLibraryCommandFactory : uses
+FilmLibraryDashboard --> LibraryCommand : executes
+FilmLibraryCommandFactory --> FilmLibraryDashboardController : receiver
+FilmLibraryCommandFactory --> SimpleLibraryCommand : creates
+SimpleLibraryCommand --> FilmLibraryDashboardController : delegates to
+
+@enduml
