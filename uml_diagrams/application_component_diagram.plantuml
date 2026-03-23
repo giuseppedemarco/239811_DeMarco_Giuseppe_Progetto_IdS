@@ -1,0 +1,32 @@
+@startuml
+title Application Architecture - Component Diagram
+left to right direction
+
+actor Utente
+
+() "Gestione film" as FilmApi
+() "Persistenza" as PersistenceApi
+
+[UI] as UI
+[Controller] as Controller
+[Service] as Service
+[Repository] as Repository
+[File Storage] as FileStorage
+[DB Repository] as DbRepository
+
+database "MySQL Database" as MySqlDb
+file "File libreria .txt" as NoteFile
+
+Utente --> UI
+UI --> Controller
+Controller --> FilmApi
+FilmApi - [Service]
+[Service] --> PersistenceApi
+PersistenceApi - [Repository]
+
+UI --> FileStorage : file txt
+UI --> DbRepository : database
+[Repository] --> NoteFile
+[DB Repository] --> MySqlDb
+
+@enduml
